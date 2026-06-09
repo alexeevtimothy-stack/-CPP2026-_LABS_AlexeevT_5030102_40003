@@ -1,24 +1,44 @@
 #include "CheckMatches.h"
 #include "Square.h"
+#include <queue>
 
 bool checkMatches(Board& board) {
     bool hasMatches = false;
+    std::vector<std::vector<bool>> visited(BOARD_HEIGHT, std::vector<bool>(BOARD_WIDTH, false));
+    int dr[] = { -1, 1, 0, 0 };
+    int dc[] = { 0, 0, -1, 1 };
+
     for (int r = 0; r < BOARD_HEIGHT; ++r) {
-        for (int c = 0; c < BOARD_WIDTH - 2; ++c) {
-            if (!board[r][c] || !board[r][c + 1] || !board[r][c + 2]) continue;
-            int color = board[r][c]->colorId;
-            if (color != -1 && board[r][c + 1]->colorId == color && board[r][c + 2]->colorId == color) {
-                board[r][c]->isMatched = board[r][c + 1]->isMatched = board[r][c + 2]->isMatched = true;
-                hasMatches = true;
+        for (int c = 0; c < BOARD_WIDTH; ++c) {
+            if (visited[r][c] || !board[r][c] || board[r][c]->getColorId() == -1) continue;
+
+            int targetColor = board[r][c]->getColorId();
+            std::vector<sf::Vector2i> component;
+            std::queue<sf::Vector2i> q;
+            q.push({ c, r });
+            visited[r][c] = true;
+
+            while (!q.empty()) {
+                sf::Vector2i curr = q.front();
+                q.pop();
+                component.push_back(curr);
+
+                for (int i = 0; i < 4; ++i) {
+                    int nr = curr.y + dr[i];
+                    int nc = curr.x + dc[i];
+
+                    if (nr >= 0 && nr < BOARD_HEIGHT && nc >= 0 && nc < BOARD_WIDTH) {
+                        if (!visited[nr][nc] && board[nr][nc] && board[nr][nc]->getColorId() == targetColor) {
+                            visited[nr][nc] = true;
+                            q.push({ nc, nr });
+                        }
+                    }
+                }
             }
-        }
-    }
-    for (int c = 0; c < BOARD_WIDTH; ++c) {
-        for (int r = 0; r < BOARD_HEIGHT - 2; ++r) {
-            if (!board[r][c] || !board[r + 1][c] || !board[r + 2][c]) continue;
-            int color = board[r][c]->colorId;
-            if (color != -1 && board[r + 1][c]->colorId == color && board[r + 2][c]->colorId == color) {
-                board[r][c]->isMatched = board[r + 1][c]->isMatched = board[r + 2][c]->isMatched = true;
+            if (component.size() >= 3) {
+                for (const auto& pos : component) {
+                    board[pos.y][pos.x]->setMatched(true);
+                }
                 hasMatches = true;
             }
         }
