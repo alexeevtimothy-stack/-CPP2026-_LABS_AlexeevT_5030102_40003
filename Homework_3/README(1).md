@@ -16,8 +16,8 @@ sfml-network-d.lib
 
 И послнедее действие, скопировать из папки bin библиотеки следующие файлы прямо в папку проекта
 
-sfml-graphics-d.lib
-sfml-window-d.lib
-sfml-system-d.lib
-sfml-audio-d.lib
-sfml-network-d.lib
+sfml-graphics-d-3.dll
+sfml-window-d-3.dll
+sfml-system-d-3.dll
+sfml-audio-d-3.dll
+sfml-network-d-3.dll
